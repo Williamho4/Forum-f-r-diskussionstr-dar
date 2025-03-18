@@ -1,0 +1,65 @@
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sort-by {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.thread-list {
+  background-color: rgb(174, 137, 137);
+  width: 50rem;
+  min-height: 30rem;
+  max-height: 40rem;
+  border-radius: 1rem;
+
+  display: flex;
+}
+
+.thread-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 50%;
+
+  gap: 0.4rem;
+}
+
+.threads {
+  width: 100%;
+  padding: 3rem 5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  overflow: auto;
+}
+
+.thread-info {
+  background-color: blueviolet;
+  padding: 1rem;
+  border-radius: 1rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.last-update {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 0.3rem;
+}
+
+.time-stamps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

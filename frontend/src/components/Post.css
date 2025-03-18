@@ -1,0 +1,38 @@
+.post {
+  background-color: rgb(174, 137, 137);
+  width: 50rem;
+  height: 18rem;
+  border-radius: 1rem;
+
+  display: flex;
+  align-items: center;
+}
+
+.post-container {
+  padding: 3rem;
+}
+
+.post-container-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  margin-top: 1rem;
+}
+
+.post-text {
+  max-height: 8rem;
+  overflow: auto;
+}
+
+.post-date {
+  color: rgb(93, 93, 242);
+}
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  align-items: center;
+  gap: 1rem;
+}
