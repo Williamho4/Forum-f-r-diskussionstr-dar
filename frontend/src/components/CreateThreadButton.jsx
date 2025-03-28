@@ -6,41 +6,48 @@ function CreateThreadButton({ onCreateThread }) {
   const [postError, setPostError] = useState(null);
   const [threadTitleInput, setThreadTitleInput] = useState("");
   const [threadCategoryInput, setThreadCategoryInput] = useState("");
-  const { fetchThreads, threads } = useFetchThreads();
+  const [threadDescInput, setThreadDescInput] = useState("");
+  const { fetchThreads } = useFetchThreads();
 
   async function postThread(e) {
     e.preventDefault();
 
     if (threadTitleInput.length === 0 || threadCategoryInput.length === 0) {
       return setPostError("Choose Title and Category");
-    } else {
-      try {
-        const response = await fetch("http://localhost:5000/threads", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: threadTitleInput,
-            category: threadCategoryInput,
-          }),
-        });
+    }
 
-        const data = await response.json();
-        console.log("Thread Created:", data);
+    if (threadDescInput.length === 0) {
+      return setPostError("Please enter description");
+    }
 
-        fetchThreads();
-        setThreadTitleInput("");
-        setThreadCategoryInput("");
-        setPostError(null);
-        setIsOpen(false);
+    try {
+      const response = await fetch("http://localhost:5000/threads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: threadTitleInput,
+          category: threadCategoryInput,
+          content: threadDescInput,
+        }),
+      });
 
-        if (onCreateThread) {
-          onCreateThread();
-        }
-      } catch (err) {
-        setPostError(err.message || "Something went wrong");
+      const data = await response.json();
+      console.log("Thread Created:", data);
+
+      fetchThreads();
+      setThreadTitleInput("");
+      setThreadCategoryInput("");
+      setThreadDescInput("");
+      setPostError(null);
+      setIsOpen(false);
+
+      if (onCreateThread) {
+        onCreateThread();
       }
+    } catch (err) {
+      setPostError(err.message || "Something went wrong");
     }
   }
 
@@ -67,6 +74,13 @@ function CreateThreadButton({ onCreateThread }) {
             type="text"
             value={threadCategoryInput}
             onChange={(e) => setThreadCategoryInput(e.target.value)}
+          />
+          <label className="input-label">Description</label>
+          <textarea
+            className="input-textarea"
+            type="text"
+            value={threadDescInput}
+            onChange={(e) => setThreadDescInput(e.target.value)}
           />
           {postError && <p className="error-message">{postError}</p>}
           <button className="submit-button">Create</button>

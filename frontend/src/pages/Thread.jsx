@@ -9,10 +9,15 @@ function Thread() {
   const { id } = useParams();
   const [postContentInput, setPostContentInput] = useState("");
   const [postError, setPostError] = useState(null);
+  const [threadInfo, setThreadInfo] = useState([]);
+
+  useEffect(() => {
+    fetchThread();
+  }, []);
 
   useEffect(() => {
     fetchPosts(id);
-  }, [id, fetchPosts]);
+  }, [id, posts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,9 +55,20 @@ function Thread() {
     setPostError(null);
   };
 
+  const fetchThread = async () => {
+    const response = await fetch(`http://localhost:5000/threads/${id}`);
+    const data = await response.json();
+
+    setThreadInfo(data);
+  };
+
   return (
     <div className="page-container">
       <div className="thread-page">
+        <h1>{threadInfo.title}</h1>
+        <h2>Description</h2>
+        <p>{threadInfo.content}</p>
+
         {posts?.length > 0 ? (
           posts.map((post) => (
             <Post

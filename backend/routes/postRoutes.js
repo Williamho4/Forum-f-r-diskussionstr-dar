@@ -89,4 +89,22 @@ router.delete("/:post_id/:thread_id", (req, res) => {
   });
 });
 
+router.patch("/:id", (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+
+  db.run(
+    "UPDATE post SET content = ? WHERE post_id = ? ",
+    [content, id],
+    function (err) {
+      if (err) {
+        console.error("Error updating post:", err.message);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      res.json({ message: "Post successfully updated" });
+    }
+  );
+});
+
 module.exports = router;

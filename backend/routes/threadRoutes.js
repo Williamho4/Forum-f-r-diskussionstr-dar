@@ -12,8 +12,26 @@ router.get("/", (req, res) => {
   });
 });
 
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+
+  db.get("SELECT * FROM thread WHERE thread_id = ?", [id], (err, row) => {
+    if (err) {
+      res.status(500).send("Error");
+    } else if (!row) {
+      res.status(404).send("Thread not found");
+    } else {
+      res.json(row);
+    }
+  });
+});
+
 router.post("/", (req, res) => {
-  const { title, category } = req.body;
+  const { title, category, content } = req.body;
 
   if (!title) {
     return res.status(400).send({ message: "Title is required" });
@@ -23,11 +41,15 @@ router.post("/", (req, res) => {
     return res.status(400).send({ message: "Category is required" });
   }
 
+  if (!content) {
+    return res.status(400).send({ message: "Content is required" });
+  }
+
   const createdAt = new Date().toLocaleString();
 
   db.run(
-    "INSERT INTO thread (title, created_at, category) VALUES(?,?, ?)",
-    [title, createdAt, category],
+    "INSERT INTO thread (title, created_at, category, content) VALUES(?,?, ?,?)",
+    [title, createdAt, category, content],
     function (err) {
       if (err) {
         return console.error("Error inserting data:", err.message);
@@ -55,7 +77,7 @@ router.delete("/", (req, res) => {
 });
 
 router.patch("/:id", (req, res) => {
-  const { title, category } = req.body;
+  const { title, category, content } = req.body;
   const { id } = req.params;
 
   if (!id) {
@@ -67,10 +89,13 @@ router.patch("/:id", (req, res) => {
   if (!category) {
     return res.status(400).send("Missing category");
   }
+  if (!content) {
+    return res.status(400).send("Missing content");
+  }
 
   db.run(
-    "UPDATE Thread SET title = ?, category = ? WHERE thread_id = ?",
-    [title, category, id],
+    "UPDATE Thread SET title = ?, category = ?, content = ?  WHERE thread_id = ?",
+    [title, category, content, id],
     function (err) {
       if (err) {
         return console.error("Error updating data:", err.message);

@@ -3,38 +3,67 @@ import "./ThreadList.css";
 import "./Forms.css";
 import CreateThreadButton from "./CreateThreadButton";
 import Thread from "./Thread";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ThreadList() {
   const { fetchThreads, threads } = useFetchThreads();
   const [sortBy, setSortBy] = useState(null);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
-  const [categoryFilteredThreads, setCategoryFilteredThreads] = useState([]);
+  const [filteredThreads, setFilteredThreads] = useState([]);
+
+  const [threadSearchInput, setThreadSearchInput] = useState("");
+
+  useEffect(() => {
+    setFilteredThreads(threads);
+  }, [threads]);
 
   const categoryChange = (e) => {
     setCategory(e);
 
-    setCategoryFilteredThreads(
-      threads.filter(
-        (thread) => thread.category.toLowerCase() === e.toLowerCase()
+    setFilteredThreads(
+      threads.filter((thread) =>
+        thread.category.toLowerCase().includes(e.toLowerCase())
       )
     );
   };
 
-  const sortedThreads = [...(threads || [])].sort((a, b) => {
-    if (sortBy === "lastUpdated") {
-      return new Date(b.last_updated) - new Date(a.last_updated);
-    } else if (sortBy === "posts") {
-      return b.total_posts - a.total_posts;
-    }
-    return 0;
-  });
+  const searchThread = (e) => {
+    setThreadSearchInput(e);
 
-  const threadsToDisplay =
-    categoryFilteredThreads.length > 0
-      ? categoryFilteredThreads
-      : sortedThreads;
+    setFilteredThreads(
+      threads.filter(
+        (thread) =>
+          thread.title.toLowerCase().includes(e.toLowerCase()) ||
+          thread.content.toLowerCase().includes(e.toLowerCase())
+      )
+    );
+
+    if (category) {
+      setFilteredThreads(
+        threads.filter(
+          (thread) =>
+            (thread.title.toLowerCase().includes(e.toLowerCase()) &&
+              thread.category.toLowerCase().includes(category.toLowerCase())) ||
+            (thread.content.toLowerCase().includes(e.toLowerCase()) &&
+              thread.category.toLowerCase().includes(category.toLowerCase()))
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    setFilteredThreads(
+      [...(filteredThreads || [])].sort((a, b) => {
+        if (sortBy === "lastUpdated") {
+          return new Date(b.last_updated) - new Date(a.last_updated);
+        } else if (sortBy === "posts") {
+          return b.total_posts - a.total_posts;
+        }
+        return 0;
+      })
+    );
+  }, [sortBy]);
 
   return (
     <div>
@@ -62,18 +91,30 @@ function ThreadList() {
                 onChange={(e) => categoryChange(e.target.value)}
               />
             </div>
+            <div>
+              <label>Search for thread</label>
+              <input
+                type="text"
+                value={threadSearchInput}
+                onChange={(e) => searchThread(e.target.value)}
+              />
+            </div>
           </div>
           <CreateThreadButton
             onCreateThread={fetchThreads}
           ></CreateThreadButton>
-          {threadsToDisplay?.length > 0 &&
-            threadsToDisplay.map((thread) => (
+          {filteredThreads?.length > 0 ? (
+            filteredThreads.map((thread) => (
               <Thread
+                key={thread.id}
                 fetchThreads={fetchThreads}
                 setError={setError}
                 thread={thread}
-              ></Thread>
-            ))}
+              />
+            ))
+          ) : (
+            <h2>No matches found</h2>
+          )}
         </div>
       </div>
       {error && <h2>{error}</h2>}

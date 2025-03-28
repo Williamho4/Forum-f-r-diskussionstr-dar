@@ -1,26 +1,41 @@
-import { useState } from "react";
-import { useFetchThreads } from "../hooks/fetchThread";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 function EditThread() {
   const [postError, setPostError] = useState(null);
   const [threadTitleInput, setThreadTitleInput] = useState("");
   const [threadCategoryInput, setThreadCategoryInput] = useState("");
+  const [descInput, setDescInput] = useState("");
+  const [thread, setThread] = useState([]);
 
   const navigate = useNavigate();
   const { id } = useParams();
 
+  useEffect(() => {
+    fetchThread();
+  }, []);
+
+  const fetchThread = async () => {
+    const response = await fetch(`http://localhost:5000/threads/${id}`);
+    const data = await response.json();
+
+    setThreadTitleInput(data.title);
+    setThreadCategoryInput(data.category);
+    setDescInput(data.content);
+    setThread(data);
+  };
+
   async function editThread(e) {
     e.preventDefault();
 
-    if (!id) {
-      return setPostError("Not valid Id");
-    }
     if (!threadTitleInput) {
       return setPostError("Enter Title");
     }
     if (!threadCategoryInput) {
       return setPostError("Enter Category");
+    }
+    if (!descInput) {
+      return setPostError("Enter Description");
     }
 
     try {
@@ -32,6 +47,7 @@ function EditThread() {
         body: JSON.stringify({
           title: threadTitleInput,
           category: threadCategoryInput,
+          content: descInput,
         }),
       });
 
@@ -39,11 +55,7 @@ function EditThread() {
         throw new Error(`HTTP Error: ${response.status}`);
       }
 
-      setThreadCategoryInput("");
-      setThreadTitleInput("");
-      setPostError(null);
-      console.log("Thread Updated");
-      navigate("/");
+      navigate(`/thread/${thread.title}/${thread.thread_id}`);
     } catch (err) {
       setPostError(err.message || "Something went wrong");
     }
@@ -66,6 +78,13 @@ function EditThread() {
           type="text"
           value={threadCategoryInput}
           onChange={(e) => setThreadCategoryInput(e.target.value)}
+        />
+        <label className="input-label">Description</label>
+        <textarea
+          className="input-textarea"
+          type="text"
+          value={descInput}
+          onChange={(e) => setDescInput(e.target.value)}
         />
         {postError && <p className="error-message">{postError}</p>}
         <button className="submit-button">Edit</button>
